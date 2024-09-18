@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	Versioner "fraktal/versioner/versioner"
 	"log"
 	"os"
+
+	Versioner "github.com/FraktalDeFiDAO/versioner"
 )
 
 func main() {

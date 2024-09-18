@@ -1,4 +1,4 @@
-package versioner
+package Versioner
 
 import (
 	"errors"
