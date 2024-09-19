@@ -2,6 +2,7 @@ package Versioner
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -18,6 +19,7 @@ type IVersioner interface {
 	IncRelease(version string) (string, error)
 	ShowVersion()
 	WriteVersionFIle(versionFile, version string) error
+	Run()
 }
 
 type Versioner struct {
@@ -249,4 +251,35 @@ func (v *Versioner) Cmp(oldVersion, newVersion string) int {
 
 	return -1
 
+}
+
+func (versioner *Versioner) Run() {
+
+	var (
+		updateVersion string
+		updateType    string
+	)
+	flag.StringVar(&versioner.BasePath, "base-path", "./", "Set base path")
+	flag.StringVar(&updateType, "update", "", "Update to new version...")
+	flag.StringVar(&updateVersion, "version", "", "Update to new version [manually set version]...")
+	flag.Parse()
+
+	versioner.VersionFile = versioner.BasePath + "version"
+	versioner.SetCurrentVersion()
+	if _, err := os.Stat(versioner.VersionFile); err != nil {
+		if err := os.WriteFile(versioner.VersionFile, []byte("0.0.1"), 0644); err != nil {
+			log.Fatal("Error creating version file...")
+		}
+	}
+	currentVersion, err := versioner.GetCurrentVersion()
+
+	if updateType != "" {
+		fmt.Printf("Updating version => %+v \t=> \t%+v\n", updateType, currentVersion)
+		if err = versioner.UpdateVersion(updateType, updateVersion); err != nil {
+			log.Fatal(err)
+		}
+	}
+	if err != nil {
+		log.Fatal("Error:", err)
+	}
 }
